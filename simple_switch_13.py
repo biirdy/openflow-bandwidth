@@ -69,14 +69,22 @@ class SimpleSwitch13(app_manager.RyuApp):
         if ev.msg.msg_len < ev.msg.total_len:
             self.logger.debug("packet truncated: only %s of %s bytes",
                               ev.msg.msg_len, ev.msg.total_len)
+
         msg = ev.msg
+        reason = msg.reason
         datapath = msg.datapath
         ofproto = datapath.ofproto
         parser = datapath.ofproto_parser
         in_port = msg.match['in_port']
 
         pkt = packet.Packet(msg.data)
+        eth = None
         eth = pkt.get_protocols(ethernet.ethernet)[0]
+
+        #if eth = None
+        #    //its our packet 
+        #    //do calculations   
+            
 
         dst = eth.dst
         src = eth.src
@@ -84,7 +92,7 @@ class SimpleSwitch13(app_manager.RyuApp):
         dpid = datapath.id
         self.mac_to_port.setdefault(dpid, {})
 
-        self.logger.info("packet in %s %s %s %s", dpid, src, dst, in_port)
+        self.logger.info("dpid:%s src:%s dst:%s in_port:%s buffer_id:%d", dpid, src, dst, in_port, msg.buffer_id)
 
         # learn a mac address to avoid FLOOD next time.
         self.mac_to_port[dpid][src] = in_port
