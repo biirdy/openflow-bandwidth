@@ -13,6 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
+import os
+
+from webob.static import DirectoryApp
+
+from ryu.app.wsgi import ControllerBase, WSGIApplication, route
+from ryu.base import app_manager
+
 from ryu.base import app_manager
 from ryu.controller import ofp_event
 from ryu.controller.handler import CONFIG_DISPATCHER, MAIN_DISPATCHER
@@ -22,10 +30,15 @@ from ryu.lib.packet import packet
 from ryu.lib.packet import ethernet
 from SwitchPoll import *
 from threading import *
+from gui_topology import *
+from ryu.app.wsgi import ControllerBase, WSGIApplication, route
+from ryu.base import app_manager
 
+PATH = os.path.dirname(__file__)
 
 class SimpleSwitch13(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
+
 
     def __init__(self, *args, **kwargs):
         super(SimpleSwitch13, self).__init__(*args, **kwargs)
@@ -37,6 +50,7 @@ class SimpleSwitch13(app_manager.RyuApp):
         self.pollingThread.start()
         self.LAST_TP_DICT = {}
         self.MAX_TP_DICT = {}
+
 
 
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
@@ -196,3 +210,9 @@ class SimpleSwitch13(app_manager.RyuApp):
                           stat.rx_crc_err, stat.collisions,
                           stat.duration_sec, stat.duration_nsec))
         print('MAX THROUGHPUT :',currentMaxDictionary)
+
+
+app_manager.require_app('ryu.app.rest_topology')
+app_manager.require_app('ryu.app.ws_topology')
+app_manager.require_app('ryu.app.ofctl_rest')
+#app_manager.require_app('ryu.app.gui_topology')
