@@ -31,6 +31,7 @@ class SimpleSwitch13(app_manager.RyuApp):
         super(SimpleSwitch13, self).__init__(*args, **kwargs)
         self.mac_to_port = {}
         self.datapathdict = {}
+        #init polling thread
         self.statTask=SwitchPoll()
         self.pollingThread=Thread(target=self.statTask.run,args=(1,self.datapathdict))
         self.pollingThread.start()
@@ -85,11 +86,8 @@ class SimpleSwitch13(app_manager.RyuApp):
         parser = datapath.ofproto_parser
         in_port = msg.match['in_port']
 
-
+        #Add new switches for polling
         self.datapathdict[datapath.id]=datapath
-        #store datapaths if new
-
-    #    self.send_port_stats_request(datapath)
 
         pkt = packet.Packet(msg.data)
         eth = pkt.get_protocols(ethernet.ethernet)[0]
@@ -130,14 +128,7 @@ class SimpleSwitch13(app_manager.RyuApp):
                                   in_port=in_port, actions=actions, data=data)
         datapath.send_msg(out)
 
-
-    def send_port_stats_request(self, datapath):
-        ofp = datapath.ofproto
-        ofp_parser = datapath.ofproto_parser
-        req = ofp_parser.OFPPortStatsRequest(datapath, 0, ofp.OFPP_ANY)
-        datapath.send_msg(req)
-
-
+    #handle stats replies
     @set_ev_cls(ofp_event.EventOFPPortStatsReply, MAIN_DISPATCHER)
     def port_stats_reply_handler(self, ev):
         ports = []
@@ -163,7 +154,9 @@ class SimpleSwitch13(app_manager.RyuApp):
 
 
         for stat in ev.msg.body:
-            self.logger.info('PortStats: Port:%d Duration nsec: %s Duration sec:%s Sent bytes: %s Recieved bytes %s',stat.port_no, stat.duration_nsec, stat.duration_sec, stat.tx_bytes, stat.rx_bytes)
+        #    self.logger.info('PortStats: Port:%d Duration nsec: %s Duration sec:%s Sent bytes: %s Recieved bytes %s',stat.port_no, stat.duration_nsec, stat.duration_sec, stat.tx_bytes, stat.rx_bytes)
+
+            self.logger.info('---------Port:%d-----------uptime:%s-----------',stat.port_no, stat.duration_sec)
 
             if stat.port_no in currentLastDictionary:
                 currentSentTP = stat.tx_bytes-(currentLastDictionary[stat.port_no])[0]

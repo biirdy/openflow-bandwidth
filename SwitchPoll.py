@@ -14,12 +14,14 @@ class SwitchPoll():
     def terminate(self):
         self._running = False
 
+    #input switch to send to
     def send_port_stats_request(self, datapath):
         ofp = datapath.ofproto
         ofp_parser = datapath.ofproto_parser
         req = ofp_parser.OFPPortStatsRequest(datapath, 0, ofp.OFPP_ANY)
         datapath.send_msg(req)
 
+    #input time for every request and list of switches to request to
     def run(self, pollTime,datapathdict):
         while True:
             for the_key, datapath in datapathdict.iteritems():
