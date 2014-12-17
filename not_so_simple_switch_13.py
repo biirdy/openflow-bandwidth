@@ -20,6 +20,8 @@ from ryu.controller.handler import set_ev_cls
 from ryu.ofproto import ofproto_v1_3
 from ryu.lib.packet import packet
 from ryu.lib.packet import ethernet
+from SwitchPoll import *
+from threading import *
 
 
 class SimpleSwitch13(app_manager.RyuApp):
@@ -28,6 +30,14 @@ class SimpleSwitch13(app_manager.RyuApp):
     def __init__(self, *args, **kwargs):
         super(SimpleSwitch13, self).__init__(*args, **kwargs)
         self.mac_to_port = {}
+        self.datapathdict = {}
+        #init polling thread
+        self.statTask=SwitchPoll()
+        self.pollingThread=Thread(target=self.statTask.run,args=(1,self.datapathdict))
+        self.pollingThread.start()
+        self.LAST_TP_DICT = {}
+        self.MAX_TP_DICT = {}
+
 
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
     def switch_features_handler(self, ev):
@@ -62,7 +72,6 @@ class SimpleSwitch13(app_manager.RyuApp):
                                     match=match, instructions=inst)
         datapath.send_msg(mod)
 
-    datapathdict = {}
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def _packet_in_handler(self, ev):
@@ -77,11 +86,8 @@ class SimpleSwitch13(app_manager.RyuApp):
         parser = datapath.ofproto_parser
         in_port = msg.match['in_port']
 
-        global datapathdict
-        datapathdict={'datapath.id', datapath};
-        #store datapaths if new
-
-        self.send_port_stats_request(datapath)
+        #Add new switches for polling
+        self.datapathdict[datapath.id]=datapath
 
         pkt = packet.Packet(msg.data)
         eth = pkt.get_protocols(ethernet.ethernet)[0]
@@ -122,20 +128,58 @@ class SimpleSwitch13(app_manager.RyuApp):
                                   in_port=in_port, actions=actions, data=data)
         datapath.send_msg(out)
 
-
-    def send_port_stats_request(self, datapath):
-        ofp = datapath.ofproto
-        ofp_parser = datapath.ofproto_parser
-        self.logger.info('Request sent')
-        req = ofp_parser.OFPPortStatsRequest(datapath, 0, ofp.OFPP_ANY)
-        datapath.send_msg(req)
-
-
+    #handle stats replies
     @set_ev_cls(ofp_event.EventOFPPortStatsReply, MAIN_DISPATCHER)
     def port_stats_reply_handler(self, ev):
         ports = []
+        currentMaxDictionary={}
+        currentLastDictionary={}
+        currentSentTP=0
+        currentRecievedTP=0
+
+        self.logger.info('##### SWITCH:%d #####',ev.msg.datapath.id)
+        #If contains this datapath then use it, if not
+        if ev.msg.datapath.id in self.MAX_TP_DICT:
+            currentMaxDictionary= self.MAX_TP_DICT[ev.msg.datapath.id]
+        else:
+            self.MAX_TP_DICT[ev.msg.datapath.id]={}
+            currentMaxDictionary=self.MAX_TP_DICT[ev.msg.datapath.id]
+
+        if ev.msg.datapath.id in self.LAST_TP_DICT:
+            currentLastDictionary= self.LAST_TP_DICT[ev.msg.datapath.id]
+        else:
+            self.LAST_TP_DICT[ev.msg.datapath.id]={}
+            currentLastDictionary=self.LAST_TP_DICT[ev.msg.datapath.id]
+
+
+
         for stat in ev.msg.body:
-            self.logger.info('PortStats: Port:%d Duration nsec: %s Duration sec:%s Sent bytes: %s Recieved bytes %s',stat.port_no, stat.duration_nsec, stat.duration_sec, stat.tx_bytes, stat.rx_bytes)
+        #    self.logger.info('PortStats: Port:%d Duration nsec: %s Duration sec:%s Sent bytes: %s Recieved bytes %s',stat.port_no, stat.duration_nsec, stat.duration_sec, stat.tx_bytes, stat.rx_bytes)
+
+            self.logger.info('---------Port:%d-----------uptime:%s-----------',stat.port_no, stat.duration_sec)
+
+            if stat.port_no in currentLastDictionary:
+                currentSentTP = stat.tx_bytes-(currentLastDictionary[stat.port_no])[0]
+                currentRecievedTP = stat.rx_bytes-(currentLastDictionary[stat.port_no])[1]
+                print('Current sent bytes per second =', currentSentTP)
+                print('Current recieved bytes per second =', currentRecievedTP)
+
+            currentLastDictionary[stat.port_no] = [stat.tx_bytes,stat.rx_bytes,stat.duration_nsec]
+
+
+            if stat.port_no in currentMaxDictionary:
+                #If SENT bytes is greater then save it as max
+                if currentSentTP>currentMaxDictionary[stat.port_no][0]:
+                    currentMaxDictionary[stat.port_no][0]=currentSentTP
+                #If RECIEVED bytes is greater then save it as max
+                if currentRecievedTP>currentMaxDictionary[stat.port_no][1]:
+                    currentMaxDictionary[stat.port_no][1]=currentRecievedTP
+            else:
+                #else init current max
+                currentMaxDictionary[stat.port_no]=[currentSentTP,currentRecievedTP]
+
+
+            #Unused method left for reference
             ports.append('port_no=%d '
                          'rx_packets=%d tx_packets=%d '
                          'rx_bytes=%d tx_bytes=%d '
@@ -151,3 +195,4 @@ class SimpleSwitch13(app_manager.RyuApp):
                           stat.rx_frame_err, stat.rx_over_err,
                           stat.rx_crc_err, stat.collisions,
                           stat.duration_sec, stat.duration_nsec))
+        print('MAX THROUGHPUT :',currentMaxDictionary)
