@@ -23,6 +23,7 @@ class SwitchPoll():
 
     #input time for every request and list of switches to request to
     def run(self, pollTime,datapathdict):
+
         while True:
             for the_key, datapath in datapathdict.iteritems():
                 self.send_port_stats_request(datapath)

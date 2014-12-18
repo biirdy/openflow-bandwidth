@@ -29,11 +29,12 @@ from ryu.ofproto import ofproto_v1_3
 from ryu.lib.packet import packet
 from ryu.lib.packet import ethernet
 from SwitchPoll import *
-from threading import *
+import threading
 from gui_topology import *
 from ryu.app.wsgi import ControllerBase, WSGIApplication, route
 from ryu.base import app_manager
-
+from packet_out import *
+from multiprocessing import Process
 PATH = os.path.dirname(__file__)
 
 class SimpleSwitch13(app_manager.RyuApp):
@@ -42,15 +43,22 @@ class SimpleSwitch13(app_manager.RyuApp):
 
     def __init__(self, *args, **kwargs):
         super(SimpleSwitch13, self).__init__(*args, **kwargs)
+
+
+
         self.mac_to_port = {}
         self.datapathdict = {}
         #init polling thread
-        self.statTask=SwitchPoll()
-        self.pollingThread=Thread(target=self.statTask.run,args=(1,self.datapathdict))
-        self.pollingThread.start()
+        statTask=SwitchPoll()
+        pollingThread=Thread(target=statTask.run,args=(1,self.datapathdict))
+        pollingThread.start()
         self.LAST_TP_DICT = {}
         self.MAX_TP_DICT = {}
 
+        poutTask = PacketOutLoop()
+        pollingThread2=Thread(target=poutTask.run,args=(10,self.datapathdict))
+        pollingThread2.start()
+        print "Created threads"
 
 
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
@@ -112,7 +120,7 @@ class SimpleSwitch13(app_manager.RyuApp):
         dpid = datapath.id
         self.mac_to_port.setdefault(dpid, {})
 
-        self.logger.info("packet in %s %s %s %s", dpid, src, dst, in_port)
+        #self.logger.info("packet in %s %s %s %s", dpid, src, dst, in_port)
 
         # learn a mac address to avoid FLOOD next time.
         self.mac_to_port[dpid][src] = in_port
@@ -170,7 +178,7 @@ class SimpleSwitch13(app_manager.RyuApp):
         for stat in ev.msg.body:
         #    self.logger.info('PortStats: Port:%d Duration nsec: %s Duration sec:%s Sent bytes: %s Recieved bytes %s',stat.port_no, stat.duration_nsec, stat.duration_sec, stat.tx_bytes, stat.rx_bytes)
 
-            self.logger.info('---------Port:%d-----------uptime:%s-----------',stat.port_no, stat.duration_sec)
+            self.logger.info('------------Port:%d-------------',stat.port_no)
 
             if stat.port_no in currentLastDictionary:
                 currentSentTP = stat.tx_bytes-(currentLastDictionary[stat.port_no])[0]

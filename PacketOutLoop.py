@@ -23,17 +23,27 @@ class PacketOutLoop():
         actions = [ofp_parser.OFPActionOutput(ofp.OFPP_FLOOD)]
         pkt = packet.Packet()
         pkt.add_protocol(ethernet.ethernet(dst='ff:ff:ff:ff:ff:ff', src='00:00:00:00:00:00', ethertype=2048))
-        pkt.add_protocol('hello world')
+        pkt.add_protocol('j'*1380)
         pkt.serialize()
+    #    print pkt.data
         out = ofp_parser.OFPPacketOut(datapath=datapath, buffer_id=ofp.OFP_NO_BUFFER,
                                    	in_port=ofp.OFPP_CONTROLLER, actions=actions, data=pkt.data)
         datapath.send_msg(out)
 
     #input time for every request and list of switches to request to
     def run(self, pollTime,datapathdict):
+        time.sleep(10)
+        t=time.time()
+        counter =0
         while True:
+
             for the_key, datapath in datapathdict.iteritems():
                 self.packet_out(datapath)
-                print "packet_out to:" + str(datapath.id)
-            time.sleep(pollTime)
-
+                counter=counter+1
+                print counter
+            #    print "packet_out to:" + str(datapath.id)
+            if (t + 10) < time.time():
+                print counter
+                time.sleep(pollTime)
+                t=time.time()
+                counter=0
