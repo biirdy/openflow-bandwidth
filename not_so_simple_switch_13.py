@@ -77,7 +77,15 @@ class SimpleSwitch13(app_manager.RyuApp):
         match = parser.OFPMatch()
         actions = [parser.OFPActionOutput(ofproto.OFPP_CONTROLLER,
                                           ofproto.OFPCML_NO_BUFFER)]
+
         self.add_flow(datapath, 0, match, actions)
+
+
+        #Add new switches for polling
+        self.datapathdict[datapath.id]=datapath
+        #Create flow to drop packet ins made for throughput tests
+        matchbw = parser.OFPMatch(eth_dst='ff:ff:ff:ff:ff:ff', eth_src='00:00:00:00:00:00')
+        self.add_flow(datapath, 10,matchbw,[])
 
     def add_flow(self, datapath, priority, match, actions, buffer_id=None):
         ofproto = datapath.ofproto
@@ -108,8 +116,7 @@ class SimpleSwitch13(app_manager.RyuApp):
         parser = datapath.ofproto_parser
         in_port = msg.match['in_port']
 
-        #Add new switches for polling
-        self.datapathdict[datapath.id]=datapath
+
 
         pkt = packet.Packet(msg.data)
         eth = pkt.get_protocols(ethernet.ethernet)[0]
@@ -219,8 +226,9 @@ class SimpleSwitch13(app_manager.RyuApp):
                           stat.duration_sec, stat.duration_nsec))
         print('MAX THROUGHPUT :',currentMaxDictionary)
 
-
+#Added ryu apps for rest intergation
 app_manager.require_app('ryu.app.rest_topology')
 app_manager.require_app('ryu.app.ws_topology')
 app_manager.require_app('ryu.app.ofctl_rest')
+#Ryu gui app works with little success
 #app_manager.require_app('ryu.app.gui_topology')
