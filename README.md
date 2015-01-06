@@ -81,9 +81,52 @@ http_client.notify("<procedure>", arg1, arg2)
 <br>Reports the througput of all flows on a specific switch.
 <br>Params: `<switch_id>`
 <br>Result: JSON formatted flow list
+```
+{
+  <port_no>:<B/s>,
+  ...
+  <port_no>:<B/s>
+}
+```
 
-<b> report_all </b>
-<br>Report the throughput of all 
+<b> report_all_ports </b>
+<br>Report the throughput of all ports on all switches under the control of the controller.
+<br>Result: JSON formatted switch & port list
+```
+{
+  <switch_id>:{
+    <port_no>:[<upload B/s>, download B/s],
+    ...
+    <port_no>:[<upload B/s>, download B/s]
+  },
+  ...
+  <switch_id>:{
+    <port_no>:[<upload B/s>, <download B/s>],
+    ...
+    <port_no>:[<upload B/s>, <download B/s>]
+  }
+}
+```
+
+<b> report_all_flows </b>
+<br>Report the throughput of all flows on all switches under the control of the controller.
+<br>Result: JSON formatted switch & flow list
+
+```
+{
+  <switch_id>:{
+    <flow_id>:<B/s>,
+    ...
+    <flow_id>:<B/s>
+  },
+  ...
+  <switch_id>:{
+    <flow_id>:<B/s>,
+    ...
+    <flow_id>:<B/s>
+  }
+}
+```
 
 <b> reset_port </b> - Notification
 <br>Resets the throughput of a specific port. To be recalculated.
@@ -107,7 +150,9 @@ http_client.notify("<procedure>", arg1, arg2)
 <b> reset_all_flows </b> - Notification
 <br>Resets all recorder throughputs of all flows on all swtiches under the control of the controller.
 
-#CLI
+<b> Enforce procedures in progress </b>
+
+#CLI - In progress
 
 
 
