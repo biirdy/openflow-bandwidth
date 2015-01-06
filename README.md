@@ -51,10 +51,9 @@ http_client.notify("<procedure>", arg1, arg2)
 <h3> Procedures </h3>
 
 <b> report_port </b>
-
-Reports the maximum seen throughput of a specific port on a specific switch.
-<br>Params<br><pre>switch_no<br>portn_no
-<br> Returns a `[upload B/s, download B/s]` tuple.
+<br>Reports the maximum seen throughput of a specific port on a specific switch.
+<br>Parmas switch_id, port_no
+<br>Returns a `[upload B/s, download B/s]` tuple.
 
 ```
 --> {"jsonrpc": "2.0", "method": "report_port", "params": [<switch_id>, <port_no>], "id": 1}
