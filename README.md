@@ -1,6 +1,6 @@
 OpenFlow Bandwidth
 ==================
-A modification of a the ryu simple learning switch controller app to report and enforce bandwidth.
+A modification of a the ryu (http://osrg.github.io/ryu/) simple learning switch controller app to report and enforce bandwidth.
 Reporting by monotring the maximum passive throughput and enforcing using OpenFlow meters, both on a per port and per flow basis.
 The controller runs a JSON-RPC server for interfacing. Procedures shown below. 
 
@@ -37,9 +37,18 @@ Connection
 
 Procedure calling. 
 
-`http_client.call("<procedure>", arg1, arg2)`
-`http_client.procedure(arg1, arg2)`
-`http_client.notify("<procedure>", arg1, arg2)`
+```
+# Direct call
+result = http_client.call("<procedure>", arg1, arg2)
+
+# Use the *method* name as *attribute* name
+http_client.procedure(arg1, arg2)
+
+# Notifcations send messages to the serevr without reply
+http_client.notify("<procedure>", arg1, arg2)
+```
+
+<h3> Procedures </h3>
 
 <b> report_port
 
