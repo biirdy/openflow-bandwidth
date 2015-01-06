@@ -53,6 +53,7 @@ http_client.notify("<procedure>", arg1, arg2)
 <b> report_port </b>
 
 Reports the maximum seen throughput of a specific port on a specific switch.
+<br>Params<br><pre>switch_no<br>portn_no
 <br> Returns a `[upload B/s, download B/s]` tuple.
 
 ```
@@ -62,7 +63,6 @@ Reports the maximum seen throughput of a specific port on a specific switch.
 
 <b> report_flow -  Not implemented </b>
 <br>Reports the throughout of a specific flow on a specific switch.
-<br>Params<tab>switch_id<br><tab>port_no
 <br>Returns a single B/s value.
 
 <b> report_switch_ports </b>
