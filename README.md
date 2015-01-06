@@ -66,7 +66,7 @@ Reports the throughout of a specific flow on a specific switch.
 <br> Returns a single B/s value.
 
 <br><b> report_switch_ports </b>
-Reports the throughput of all ports on a specific switch.
+<br>Reports the throughput of all ports on a specific switch.
 
 <br><b> report_switch_flows - <b> Not implemented </b>
 Reports the througput of all flows on a specific switch.
