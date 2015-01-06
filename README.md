@@ -20,7 +20,7 @@ Run bandwidth_control_simple_switch_13.py as a Ryu app
 By default the RPC server is running on `http://localhost:4000/jsonrpc`
 
 ## JSON RPC interface
-The JSON-RPC server is a Http server.
+The JSON-RPC server is a HTTP server.
 The following examples would be used to develop a python application using the python-jspnrpc library (https://pypi.python.org/pypi/python-jsonrpc), but procedures can be called using any JSON-RPC method. (I think)
 
 Install 
