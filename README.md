@@ -5,6 +5,8 @@ Reporting by monotring the maximum passive throughput and enforcing using OpenFl
 The controller runs a JSON-RPC server for interfacing. Procedures shown below. 
 
 ## Quick start
+Install Ryu 
+'% pip install ryu'
 
 
 
