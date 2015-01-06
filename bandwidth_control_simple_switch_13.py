@@ -14,13 +14,9 @@
 # limitations under the License.
 
 
-import os
-
 from webob.static import DirectoryApp
-
 from ryu.app.wsgi import ControllerBase, WSGIApplication, route
 from ryu.base import app_manager
-
 from ryu.base import app_manager
 from ryu.controller import ofp_event
 from ryu.controller.handler import CONFIG_DISPATCHER, MAIN_DISPATCHER
@@ -28,14 +24,17 @@ from ryu.controller.handler import set_ev_cls
 from ryu.ofproto import ofproto_v1_3
 from ryu.lib.packet import packet
 from ryu.lib.packet import ethernet
-from SwitchPoll import *
-import threading
+
 from gui_topology import *
 from ryu.app.wsgi import ControllerBase, WSGIApplication, route
 from ryu.base import app_manager
-from packet_out import *
+
 from rcp_server import *
+from SwitchPoll import *
 from multiprocessing import Process
+
+import os
+from threading import * 
 import pyjsonrpc
 
 PATH = os.path.dirname(__file__)
@@ -43,14 +42,15 @@ PATH = os.path.dirname(__file__)
 class SimpleSwitch13(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
 
-
     def __init__(self, *args, **kwargs):
         super(SimpleSwitch13, self).__init__(*args, **kwargs)
 
         self.mac_to_port = {}
         self.datapathdict = {}
         #init polling thread
-        Thread(target=SwitchPoll().run, args=(1,self.datapathdict)).start()
+        switchPoll = SwitchPoll()
+        pollThread = Thread(target=switchPoll.run, args=(1,self.datapathdict))
+        pollThread.start()
         print "Created polling threads"
         
         self.LAST_TP_DICT = {}
@@ -236,8 +236,8 @@ class SimpleSwitch13(app_manager.RyuApp):
 
 
 #Added ryu apps for rest intergation
-app_manager.require_app('ryu.app.rest_topology')
-app_manager.require_app('ryu.app.ws_topology')
-app_manager.require_app('ryu.app.ofctl_rest')
+#app_manager.require_app('ryu.app.rest_topology')
+#app_manager.require_app('ryu.app.ws_topology')
+#app_manager.require_app('ryu.app.ofctl_rest')
 #Ryu gui app works with little success
 #app_manager.require_app('ryu.app.gui_topology')
