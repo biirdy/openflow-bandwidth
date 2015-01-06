@@ -62,6 +62,7 @@ Reports the maximum seen throughput of a specific port on a specific switch.
 
 <b> report_flow -  Not implemented </b>
 <br>Reports the throughout of a specific flow on a specific switch.
+<br>Params<tab>switch_id<br><tab>port_no
 <br>Returns a single B/s value.
 
 <b> report_switch_ports </b>
