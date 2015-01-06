@@ -52,7 +52,9 @@ http_client.notify("<procedure>", arg1, arg2)
 
 <b> report_port </b>
 <br>Reports the maximum seen throughput of a specific port on a specific switch.
-<br>Parmas switch_id, port_no
+<pre>Parmas 
+  switch_id
+  port_no</pre>
 <br>Returns a `[upload B/s, download B/s]` tuple.
 
 ```
