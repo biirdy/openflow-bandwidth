@@ -61,24 +61,23 @@ Reports the maximum seen throughput of a specific port on a specific switch.
 ```
 
 <b> report_flow -  Not implemented </b>
+<br>Reports the throughout of a specific flow on a specific switch.
+<br>Returns a single B/s value.
 
-Reports the throughout of a specific flow on a specific switch.
-<br> Returns a single B/s value.
-
-<br><b> report_switch_ports </b>
+<b> report_switch_ports </b>
 <br>Reports the throughput of all ports on a specific switch.
 
-<br><b> report_switch_flows - <b> Not implemented </b>
-Reports the througput of all flows on a specific switch.
+<b> report_switch_flows - <b> Not implemented </b>
+<br>Reports the througput of all flows on a specific switch.
 
-<br><b> reset_port </b>
-Resets the throughput of a specific port. To be recalculated.
+<b> reset_port </b>
+<br>Resets the throughput of a specific port. To be recalculated.
 
-<br><b> reset_flow - <b> Not implemented </b>
-Resets the throughput of a specific flow. To be recalculated.
+<b> reset_flow - <b> Not implemented </b>
+<br>Resets the throughput of a specific flow. To be recalculated.
 
-<br><b> reset_all </b>
-Resets all throughputs on all swtiches under the control of the controller.
+<b> reset_all </b>
+<br>Resets all throughputs on all swtiches under the control of the controller.
 
 
 
