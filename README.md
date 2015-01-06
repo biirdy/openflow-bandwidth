@@ -153,6 +153,19 @@ http_client.notify("<procedure>", arg1, arg2)
 <b> Enforce procedures in progress </b>
 
 <h2>CLI - In progress</h2>
+<b> report_throughput.py </b> - Only port based for now
+
+Show everything
+
+`% python report_througput.py -a`
+
+Show all ports on a switch
+
+`% python report_throughput.py -s <switch_id>`
+
+Show specifc port on a switch
+
+`% python report_throughput.py -s <switch_id> -p <port_no>`
 
 
 
