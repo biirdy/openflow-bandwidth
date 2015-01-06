@@ -68,7 +68,7 @@ http_client.notify("<procedure>", arg1, arg2)
 <b> report_switch_ports </b>
 <br>Reports the throughput of all ports on a specific switch.
 <br>Params: `<switch_id>`
-<br>Result: JSON formatted  
+<br>Result: JSON formatted port list
 ```
 {
   <port_no>:[<upload B/s>, <download B/s>],
@@ -79,6 +79,11 @@ http_client.notify("<procedure>", arg1, arg2)
 
 <b> report_switch_flows - Not implemented </b>
 <br>Reports the througput of all flows on a specific switch.
+<br>Params: `<switch_id>`
+<br>Result: JSON formatted flow list
+
+<b> report_all </b>
+<br>Report the throughput of all 
 
 <b> reset_port </b> - Notification
 <br>Resets the throughput of a specific port. To be recalculated.
@@ -86,9 +91,24 @@ http_client.notify("<procedure>", arg1, arg2)
 
 <b> reset_flow </b> - Notification - <b> Not implemented </b>
 <br>Resets the throughput of a specific flow. To be recalculated.
+<br>Params: `[<switch_id>, <flow_id>]`
 
-<b> reset_all </b> - Notification
-<br>Resets all throughputs on all swtiches under the control of the controller.
+<b> reset_switch_ports </b> - Notification
+<br>Resets all recorder throughputs of all ports on a specific switch.
+<br>Params: `<switch_id>`
+
+<b> reset_switch_flows </b> - Notification
+<br>Resets all recorder throughputs of all ports on a specific switch.
+<br>Params: `<switch_id>`
+
+<b> reset_all_ports </b> - Notification
+<br>Resets all recorder throughputs of all ports on all swtiches under the control of the controller.
+
+<b> reset_all_flows </b> - Notification
+<br>Resets all recorder throughputs of all flows on all swtiches under the control of the controller.
+
+#CLI
+
 
 
 
