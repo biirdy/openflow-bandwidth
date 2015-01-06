@@ -6,7 +6,7 @@ The controller runs a JSON-RPC server for interfacing. Procedures shown below.
 
 ## Quick start
 Install Ryu 
-'% pip install ryu'
+`% pip install ryu`
 
 
 
