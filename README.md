@@ -67,13 +67,13 @@ Reports the maximum seen throughput of a specific port on a specific switch.
 <b> report_switch_ports </b>
 <br>Reports the throughput of all ports on a specific switch.
 
-<b> report_switch_flows - <b> Not implemented </b>
+<b> report_switch_flows - Not implemented </b>
 <br>Reports the througput of all flows on a specific switch.
 
 <b> reset_port </b>
 <br>Resets the throughput of a specific port. To be recalculated.
 
-<b> reset_flow - <b> Not implemented </b>
+<b> reset_flow - Not implemented </b>
 <br>Resets the throughput of a specific flow. To be recalculated.
 
 <b> reset_all </b>
