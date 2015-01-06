@@ -6,7 +6,6 @@ from ryu.ofproto import ofproto_v1_3
 from ryu.lib.packet import packet
 import time
 from ryu.lib.packet import ethernet
-from Data import *
 
 class PacketOutLoop():
     def __init__(self):
