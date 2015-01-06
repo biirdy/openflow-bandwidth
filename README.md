@@ -152,7 +152,7 @@ http_client.notify("<procedure>", arg1, arg2)
 
 <b> Enforce procedures in progress </b>
 
-<h3>CLI - In progress</h3>
+<h2>CLI - In progress</h2>
 
 
 
