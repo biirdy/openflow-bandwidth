@@ -53,7 +53,7 @@ http_client.notify("<procedure>", arg1, arg2)
 <b> report_port </b>
 
 Reports the maximum seen throughput of a specific port on a specific switch.
-Returns a `[upload B/s, download B/s]` tuple.
+<br> Returns a `[upload B/s, download B/s]` tuple.
 
 ```
 --> {"jsonrpc": "2.0", "method": "report_port", "params": [<switch_id>, <port_no>], "id": 1}
@@ -62,15 +62,23 @@ Returns a `[upload B/s, download B/s]` tuple.
 
 <b> report_flow -  Not implemented </b>
 
-<b> report_switch_ports
+Reports the throughout of a specific flow on a specific switch.
+<br> Returns a single B/s value.
+
+<b> report_switch_ports </b>
+Reports the throughput of all ports on a specific switch.
 
 <b> report_switch_flows - <b> Not implemented </b>
+Reports the througput of all flows on a specific switch.
 
 <b> reset_port
+Resets the throughput of a specific port. To be recalculated.
 
 <b> reset_flow - <b> Not implemented </b>
+Resets the throughput of a specific flow. To be recalculated.
 
 <b> reset_all
+Resets all throughputs on all swtiches under the control of the controller.
 
 
 
