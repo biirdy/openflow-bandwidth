@@ -52,12 +52,8 @@ http_client.notify("<procedure>", arg1, arg2)
 
 <b> report_port </b>
 <br>Reports the maximum seen throughput of a specific port on a specific switch.
-<br>Parmas
-<ol> 
-  <li>switch_id</li>
-  <li>port_no</li>
-</ol>
-<br>Returns a `[upload B/s, download B/s]` tuple.
+<br>Params: `[<switch_id>, <port_no>]` 
+<br>Returns: a  `[upload B/s, download B/s]` tuple.
 
 ```
 --> {"jsonrpc": "2.0", "method": "report_port", "params": [<switch_id>, <port_no>], "id": 1}
@@ -66,10 +62,20 @@ http_client.notify("<procedure>", arg1, arg2)
 
 <b> report_flow -  Not implemented </b>
 <br>Reports the throughout of a specific flow on a specific switch.
-<br>Returns a single B/s value.
+<br>Params: `[<switch_id>, <flow_id>]`
+<br>Returns: `<B/s>` 
 
 <b> report_switch_ports </b>
 <br>Reports the throughput of all ports on a specific switch.
+<br>Params: `<switch_id>`
+<br>Returns: 
+```
+{
+  <port_no>:[<upload B/s>, <download B/s>]
+  ...
+  <port_no>:[<upload B/s>, <download B/s>]
+}
+```
 
 <b> report_switch_flows - Not implemented </b>
 <br>Reports the througput of all flows on a specific switch.
