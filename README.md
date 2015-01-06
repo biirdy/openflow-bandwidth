@@ -18,19 +18,25 @@ Run bandwidth_control_simple_switch_13.py as a Ryu app
 `% ryu-manager bandwidth_control_simple_switch_13.py`
 
 ## JSON RPC interface
-report_port
+The JSON-RPC server is a Http server.
+The following examples would be used to develop a python application but procedures can be called using any JSON-RPC method.
 
-report_flow - <b> Not implemented </b>
+Connection
+`http_client = pyjsonrpc.HttpClient(url = "http://localhost:4000/jsonrpc")`
 
-report_switch_ports
+<b> report_port
 
-report_switch_flows - <b> Not implemented </b>
+<b> report_flow -  Not implemented </b>
 
-reset_port
+<b> report_switch_ports
 
-reset_flow - <b> Not implemented </b>
+<b> report_switch_flows - <b> Not implemented </b>
 
-reset_all
+<b> reset_port
+
+<b> reset_flow - <b> Not implemented </b>
+
+<b> reset_all
 
 
 
