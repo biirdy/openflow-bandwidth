@@ -42,7 +42,7 @@ Procedure calling.
 result = http_client.call("<procedure>", arg1, arg2)
 
 # Use the *method* name as *attribute* name
-http_client.procedure(arg1, arg2)
+result = http_client.procedure(arg1, arg2)
 
 # Notifcations send messages to the serevr without reply
 http_client.notify("<procedure>", arg1, arg2)
@@ -50,7 +50,15 @@ http_client.notify("<procedure>", arg1, arg2)
 
 <h3> Procedures </h3>
 
-<b> report_port
+<b> report_port </b>
+
+Reports the maximum seen throughput of a specific port on a specific switch
+Returns a `[upload B/s, download B/s]` tuple.
+
+```
+--> {"jsonrpc": "2.0", "method": "report_port", "params": [<switch_id>, <port_no>], "id": 1}
+<-- {"jsonrpc": "2.0", "result": [<upload B/s>, <download B/s>], "id": 1}
+```
 
 <b> report_flow -  Not implemented </b>
 
