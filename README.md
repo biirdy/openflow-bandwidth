@@ -5,10 +5,17 @@ Reporting by monotring the maximum passive throughput and enforcing using OpenFl
 The controller runs a JSON-RPC server for interfacing. Procedures shown below. 
 
 ## Quick start
-Install Ryu 
+Install Ryu
 
 `% pip install ryu`
 
+Pull
+
+`% git pull http://github.com/birrdy/openflow_bandwidth`
+
+Run bandwidth_control_simple_switch_13.py as a Ryu app
+
+`% ryu-manager bandwidth_control_simple_switch_13.py`
 
 
 ## JSON RPC interface
