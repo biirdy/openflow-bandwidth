@@ -53,7 +53,7 @@ http_client.notify("<procedure>", arg1, arg2)
 <b> report_port </b>
 <br>Reports the maximum seen throughput of a specific port on a specific switch.
 <br>Params: `[<switch_id>, <port_no>]` 
-<br>Returns: `[upload B/s, download B/s]`
+<br>Result: `[upload B/s, download B/s]`
 
 ```
 --> {"jsonrpc": "2.0", "method": "report_port", "params": [<switch_id>, <port_no>], "id": 1}
@@ -63,15 +63,15 @@ http_client.notify("<procedure>", arg1, arg2)
 <b> report_flow -  Not implemented </b>
 <br>Reports the throughout of a specific flow on a specific switch.
 <br>Params: `[<switch_id>, <flow_id>]`
-<br>Returns: `<B/s>` 
+<br>Result: `<B/s>` 
 
 <b> report_switch_ports </b>
 <br>Reports the throughput of all ports on a specific switch.
 <br>Params: `<switch_id>`
-<br>Returns: 
+<br>Result: JSON formatted  
 ```
 {
-  <port_no>:[<upload B/s>, <download B/s>]
+  <port_no>:[<upload B/s>, <download B/s>],
   ...
   <port_no>:[<upload B/s>, <download B/s>]
 }
@@ -80,13 +80,14 @@ http_client.notify("<procedure>", arg1, arg2)
 <b> report_switch_flows - Not implemented </b>
 <br>Reports the througput of all flows on a specific switch.
 
-<b> reset_port </b>
+<b> reset_port </b> - Notification
 <br>Resets the throughput of a specific port. To be recalculated.
+<br>Params: `[<switch_id>, <port_no>]`
 
-<b> reset_flow - Not implemented </b>
+<b> reset_flow </b> - Notification - <b> Not implemented </b>
 <br>Resets the throughput of a specific flow. To be recalculated.
 
-<b> reset_all </b>
+<b> reset_all </b> - Notification
 <br>Resets all throughputs on all swtiches under the control of the controller.
 
 
