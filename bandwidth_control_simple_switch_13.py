@@ -56,7 +56,7 @@ class SimpleSwitch13(app_manager.RyuApp):
         self.LAST_TP_DICT = {}
         self.MAX_TP_DICT = {}
 
-        Thread(target=rcp_server().run, args=(1,self.MAX_TP_DICT)).start()
+        Thread(target=rcp_server().run, args=(1,self.MAX_TP_DICT,self.meter_mod)).start()
         print "Created rcp server"
 
         #-- Attempt at activly testing the network --# 
@@ -106,6 +106,10 @@ class SimpleSwitch13(app_manager.RyuApp):
                                     match=match, instructions=inst, table_id=100,
 				    hard_timeout=timeout, idle_timeout=timeout)
         datapath.send_msg(mod)
+
+    def meter_mod(self, datapath_id, port_no, speed):
+        #change meter with meter_id <port_no>, on switch <datapath>, to have a rate of <speed>
+        return 1
 
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
