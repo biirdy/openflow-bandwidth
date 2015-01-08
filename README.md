@@ -162,15 +162,15 @@ http_client.notify("<procedure>", arg1, arg2)
 <b> Enforce procedures in progress </b>
 
 <b> enforce_port_outbound </b> - Notification
-<br>Enforces an outbound bandwidth restriction on a specific port
+<br>Enforces an outbound bandwidth restriction on a specific port. Any previous enforcements will be replaced.
 <br>Params: `[<switch_id>, <port_no>, <speed B/s>]`
 
 <b> enforce_port_inbound </b> - Notification
-<br>Enforces an inbound bandwidth restriction on a specific port
+<br>Enforces an inbound bandwidth restriction on a specific port. Any previous enforcements will be replaced.
 <br>Params: `[<switch_id>, <port_no>, <speed B/s>]`
 
-<b> enforce_flow </b> - Notification
-<br>Enforces a bandwidth restricion on a specific flow
+<b> enforce_flow </b> - Notification - <b> Not implemented </b>
+<br>Enforces a bandwidth restricion on a specific flow. Any previous enforcements will be replaced.
 <br>Params :`[<switch_id>, <flow_id>]`
 
 <h2>CLI - In progress</h2>
