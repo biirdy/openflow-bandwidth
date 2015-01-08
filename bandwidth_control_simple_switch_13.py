@@ -109,6 +109,7 @@ class SimpleSwitch13(app_manager.RyuApp):
 
     def meter_mod(self, datapath_id, port_no, speed):
         #change meter with meter_id <port_no>, on switch <datapath>, to have a rate of <speed>
+        print ('METER MOD REQUEST', datapath_id, port_no, speed)
         return 1
 
 

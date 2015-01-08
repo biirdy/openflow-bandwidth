@@ -39,7 +39,7 @@ class RequestHandler(pyjsonrpc.HttpRequestHandler):
 
 	@pyjsonrpc.rpcmethod
 	def enforce_port_outbound(self, switch, port, speed):
-		self.server.meter_mod(switch, port, speed)
+		self.server.meter_mod(int(switch), int(port), int(speed))
 
 
 
