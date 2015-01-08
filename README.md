@@ -6,12 +6,12 @@ The controller runs a JSON-RPC server for interfacing. Procedures shown below.
 
 ## Compatability
 <b> HP OpenFlow 1.3 switches </b>
-Bandwidth reporting - Confirmed
-Bandwidth enforcing - Confirmed
+<br>Bandwidth reporting - Confirmed
+<br>Bandwidth enforcing - Confirmed
 
 <b> ofsoftswitch </b>
-Bandwidth reporting - Confirmed
-Bandwidth enforcing - Confirmed
+<br>Bandwidth reporting - Confirmed
+<br>Bandwidth enforcing - Confirmed
 
 ## Quick start
 Install Ryu
