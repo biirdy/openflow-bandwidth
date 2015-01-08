@@ -4,6 +4,9 @@ A modification of a the ryu (http://osrg.github.io/ryu/) simple learning switch 
 Reporting by monotring the maximum passive throughput and enforcing using OpenFlow meters, both on a per port and per flow basis.
 The controller runs a JSON-RPC server for interfacing. Procedures shown below. 
 
+## Compatability
+<b> HP OpenFlow 1.3 switchs </b>
+
 ## Quick start
 Install Ryu
 
