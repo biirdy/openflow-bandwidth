@@ -18,9 +18,14 @@ The controller runs a JSON-RPC server for interfacing. Procedures shown below.
 <br>Bandwidht enforcing - Failed
 
 ## Quick start
-Install Ryu
+Install Ryu - simple pip installation has requirements
 
-`% pip install ryu`
+```
+% git clone git://github.com/osrg/ryu.git 
+% cd ryu  
+% sudo pip install -r tools/pip-requires
+% python ./setup.py install
+```
 
 Pull
 
