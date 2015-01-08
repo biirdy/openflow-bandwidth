@@ -13,6 +13,10 @@ The controller runs a JSON-RPC server for interfacing. Procedures shown below.
 <br>Bandwidth reporting - Confirmed
 <br>Bandwidth enforcing - Confirmed
 
+<b> Open vSwitch </b>
+<br>Bandwidth reporting - Confirmed
+<br>Bandwidht enforcing - Failed
+
 ## Quick start
 Install Ryu
 
