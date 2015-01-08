@@ -83,9 +83,9 @@ http_client.notify("<procedure>", arg1, arg2)
 <br>Result: JSON formatted flow list
 ```
 {
-  <port_no>:<B/s>,
+  <flow_id>:<B/s>,
   ...
-  <port_no>:<B/s>
+  <flow_id>:<B/s>
 }
 ```
 
