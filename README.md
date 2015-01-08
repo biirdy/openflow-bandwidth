@@ -161,6 +161,18 @@ http_client.notify("<procedure>", arg1, arg2)
 
 <b> Enforce procedures in progress </b>
 
+<b> enforce_port_outbound </b> - Notification
+<br>Enforces an outbound bandwidth restriction on a specific port
+<br>Params: `[<switch_id>, <port_no>, <speed B/s>]`
+
+<b> enforce_port_inbound </b> - Notification
+<br>Enforces an inbound bandwidth restriction on a specific port
+<br>Params: `[<switch_id>, <port_no>, <speed B/s>]`
+
+<b> enforce_flow </b> - Notification
+<br>Enforces a bandwidth restricion on a specific flow
+<br>Params :`[<switch_id>, <flow_id>]`
+
 <h2>CLI - In progress</h2>
 <b> report_throughput.py </b> - Only port based for now
 
