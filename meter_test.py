@@ -34,8 +34,8 @@ class SimpleSwitch13(app_manager.RyuApp):
         self.add_flow(datapath, 0, match, actions, meter=None)
 
         print datapath.id
-        if datapath.id == 1:
-            #Add flow that installs meter
+        if 1 == 1:
+	    #Add flow that installs meter
             bands = []
             dropband = parser.OFPMeterBandDrop(rate=200, burst_size=0)
             bands.append(dropband)
@@ -50,7 +50,8 @@ class SimpleSwitch13(app_manager.RyuApp):
 
             global dd
             dd = datapath
-
+	    print("Got datapath")
+	    print datapath.id
             #print out meter stats
             self.printit()
 
@@ -66,10 +67,10 @@ class SimpleSwitch13(app_manager.RyuApp):
         if buffer_id:
             mod = parser.OFPFlowMod(datapath=datapath, buffer_id=buffer_id,
                                     priority=priority, match=match,
-                                    instructions=inst)
+                                    instructions=inst, table_id=100)
         else:
             mod = parser.OFPFlowMod(datapath=datapath, priority=priority,
-                                    match=match, instructions=inst)
+                                    match=match, instructions=inst, table_id=100)
         datapath.send_msg(mod)
 
         #gets the meter stats from switch
