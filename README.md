@@ -5,7 +5,7 @@ Reporting by monotring the maximum passive throughput and enforcing using OpenFl
 The controller runs a JSON-RPC server for interfacing. Procedures shown below. 
 
 ## Compatability
-<b> HP OpenFlow 1.3 switchs </b>
+<b> HP OpenFlow 1.3 switches </b>
 
 ## Quick start
 Install Ryu
