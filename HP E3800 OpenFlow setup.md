@@ -9,6 +9,7 @@
 <b><br>SW2 - HP-3800-48G-PoEP-4XG</b>
 <br>Software revision  : KA.15.15.0006 
 <br>ROM Version        : KA.15.09
+<br>Configured OpenFlow instance - ryu
 <b><br>SW3 - AccessSW4</b> 
 <br>Software revision  : KA.15.15.0006
 <br>ROM Version        : KA.15.09 
