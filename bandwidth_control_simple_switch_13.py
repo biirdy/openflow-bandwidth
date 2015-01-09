@@ -104,12 +104,30 @@ class SimpleSwitch13(app_manager.RyuApp):
         else:
             mod = parser.OFPFlowMod(datapath=datapath, priority=priority,
                                     match=match, instructions=inst, table_id=100,
-				    hard_timeout=timeout, idle_timeout=timeout)
+				                    hard_timeout=timeout, idle_timeout=timeout)
         datapath.send_msg(mod)
 
-    def meter_mod(self, datapath_id, port_no, speed):
+    def add_meter_port(self, datapath_id, port_no, speed):
+        #METER ID's WILL DIRECTLY RELATE TO PORT NUMBERS
         #change meter with meter_id <port_no>, on switch <datapath>, to have a rate of <speed>
-        print ('METER MOD REQUEST', datapath_id, port_no, speed)
+
+        #delete if they exist already
+
+        return 1
+
+    def add_meter_service(self, datapath_id, src_addr, dst_sddr, speed):
+
+        #create meter with rate of <speed> and intall - NEED TO GIVE A METER ID HGIHGER THAN MAX PORTS 
+        #create flow with <src> and <dst> - with a higher priority than normal switch behaviour -
+        #action NORMAL && link to meter
+
+        #delete if the exist already
+
+        return 1
+
+    def add_meter_flow(self, datapath_id, flow_id, speed):
+        #add meter to an existing flow through normal switch behaviour
+        #doens't need implemented yet!
         return 1
 
 
@@ -125,8 +143,6 @@ class SimpleSwitch13(app_manager.RyuApp):
         ofproto = datapath.ofproto
         parser = datapath.ofproto_parser
         in_port = msg.match['in_port']
-
-
 
         pkt = packet.Packet(msg.data)
         eth = pkt.get_protocols(ethernet.ethernet)[0]
