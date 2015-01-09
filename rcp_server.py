@@ -10,7 +10,7 @@ class rcp_server:
 	def terminate(self):
 		self._running = False
 
-	def run(self, num, max_throughput, meter_mod):
+	def run(self, num, max_throughput, add_meter_port, add_meter_service):
 		http_server = pyjsonrpc.ThreadingHttpServer(server_address = ('localhost', 4000),RequestHandlerClass = RequestHandler)
 		http_server.max_throughput = max_throughput
 		http_server.meter_mod = meter_mod
@@ -19,11 +19,11 @@ class rcp_server:
 class RequestHandler(pyjsonrpc.HttpRequestHandler):
 	@pyjsonrpc.rpcmethod
 	def report_port(self, switch, port):
-		return json.dumps(self.server.max_throughput[int(switch)][int(port)])
+		return json.dumps(self.server.max_throughput[switch.encode('ascii')][int(port)])
 
 	@pyjsonrpc.rpcmethod
 	def report_switch_ports(self, switch):
-		return json.deumps(self.server.max_throughput[int(switch)])
+		return json.deumps(self.server.max_throughput[switch.encode('ascii')])
 
 	@pyjsonrpc.rpcmethod
 	def report_all_ports(self):
@@ -31,15 +31,19 @@ class RequestHandler(pyjsonrpc.HttpRequestHandler):
 
 	@pyjsonrpc.rpcmethod
 	def reset_port(self, switch, port):
-		self.server.max_throughput[int(switch)][int(port)] = [0,0]
+		self.server.max_throughput[switch.encode('ascii')][int(port)] = [0,0]
 
 	@pyjsonrpc.rpcmethod
 	def reset_switch_port(self, switch):
-		self.server.max_throughput[int(switch)] = {}
+		self.server.max_throughput[switch.encode('ascii')] = {}
 
 	@pyjsonrpc.rpcmethod
 	def enforce_port_outbound(self, switch, port, speed):
-		self.server.meter_mod(int(switch), int(port), int(speed))
+		self.server.add_meter_port(switch.encode('ascii'), int(port), int(speed))
+
+	@pyjsonrpc.rpcmethod
+	def enforce_service(self, switch, src, dst, speed):
+		self.server.add_meter_service(switch.encode('ascii'), src.encode('ascii'), dst.encode('ascii'), int(speed))
 
 
 

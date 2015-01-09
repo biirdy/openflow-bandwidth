@@ -56,7 +56,7 @@ class SimpleSwitch13(app_manager.RyuApp):
         self.LAST_TP_DICT = {}
         self.MAX_TP_DICT = {}
 
-        Thread(target=rcp_server().run, args=(1,self.MAX_TP_DICT,self.add_meter_port)).start()
+        Thread(target=rcp_server().run, args=(1,self.MAX_TP_DICT,self.add_meter_port,self.add_meter_service)).start()
         print "Created rcp server"
 
         #-- Attempt at activly testing the network --#
