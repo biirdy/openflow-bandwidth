@@ -34,7 +34,7 @@ from SwitchPoll import *
 from multiprocessing import Process
 
 import os
-from threading import * 
+from threading import *
 import pyjsonrpc
 
 PATH = os.path.dirname(__file__)
@@ -52,17 +52,24 @@ class SimpleSwitch13(app_manager.RyuApp):
         pollThread = Thread(target=switchPoll.run, args=(1,self.datapathdict))
         pollThread.start()
         print "Created polling threads"
-        
+
         self.LAST_TP_DICT = {}
         self.MAX_TP_DICT = {}
 
-        Thread(target=rcp_server().run, args=(1,self.MAX_TP_DICT,self.meter_mod)).start()
+        Thread(target=rcp_server().run, args=(1,self.MAX_TP_DICT,self.add_meter_port)).start()
         print "Created rcp server"
 
-        #-- Attempt at activly testing the network --# 
+        #-- Attempt at activly testing the network --#
         #poutTask = PacketOutLoop()
         #pollingThread2=Thread(target=poutTask.run,args=(10,self.datapathdict))
         #pollingThread2.start()
+
+        #Map for sw to meters to ports
+        self.datapathID_to_meters = {}
+
+        #Meter id for per flow based meters (Dont want port and flow meter ids conflicting)
+        #starts at 50, hp
+        self.datapathID_to_meter_ID= {}
 
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
     def switch_features_handler(self, ev):
@@ -86,42 +93,106 @@ class SimpleSwitch13(app_manager.RyuApp):
 
         #Add new switches for polling
         self.datapathdict[datapath.id]=datapath
-        #Create flow to drop packet ins made for throughput tests
-        #matchbw = parser.OFPMatch(eth_dst='ff:ff:ff:ff:ff:ff', eth_src='00:00:00:00:00:00')
-        #self.add_flow(datapath, 10,matchbw,[])
 
-    def add_flow(self, datapath, priority, match, actions, buffer_id=None, timeout=0):
+
+    #Add flow modified to allow meters
+    def add_flow(self, datapath, priority, match, actions, buffer_id=None, meter=None, timeout=0):
         ofproto = datapath.ofproto
         parser = datapath.ofproto_parser
 
-        inst = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS,
-                                             actions)]
+        print "The meter is :",meter
+        if meter != None:
+        print "Sending flow mod with meter instruction, meter :", meter
+            inst = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS,actions),parser.OFPInstructionMeter(meter)]
+        else:
+        print "Not sending instruction"
+            inst = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS,actions)]
         if buffer_id:
             mod = parser.OFPFlowMod(datapath=datapath, buffer_id=buffer_id,
                                     priority=priority, match=match,
-                                    instructions=inst, table_id=100, 
-				    hard_timeout=timeout, idle_timeout=timeout)
+                                    instructions=inst, hard_timeout=timeout,
+                                    idle_timeout=timeout, table_id=100)
         else:
             mod = parser.OFPFlowMod(datapath=datapath, priority=priority,
-                                    match=match, instructions=inst, table_id=100,
-				                    hard_timeout=timeout, idle_timeout=timeout)
+                                    match=match, instructions=inst,
+                                    hard_timeout=timeout, idle_timeout=timeout, table_id=100)
         datapath.send_msg(mod)
 
+        #Edit this
     def add_meter_port(self, datapath_id, port_no, speed):
+        print "ADDING METER TO PORT"
         #METER ID's WILL DIRECTLY RELATE TO PORT NUMBERS
         #change meter with meter_id <port_no>, on switch <datapath>, to have a rate of <speed>
 
-        #delete if they exist already
+        port_to_meter= self.datapathID_to_meter[datapath_id]
+
+        bands=[]
+        #set starting bit rate of meter
+        dropband = parser.OFPMeterBandDrop(rate=speed, burst_size=0)
+        bands.append(dropband)
+        #Delete meter incase it already exists (other instructions pre installed will still work)
+        request = parser.OFPMeterMod(datapath=datapath,command=ofproto.OFPMC_DELETE,flags=ofproto.OFPMF_KBPS,meter_id=port_no,bands=bands)
+        datapath.send_msg(request)
+        #Create meter
+        request = parser.OFPMeterMod(datapath=datapath,command=ofproto.OFPMC_ADD, flags=ofproto.OFPMF_KBPS,meter_id=port_no,bands=bands)
+        datapath.send_msg(request)
+
+        #Prvent overwriting incase rule added before traffic seen
+        port_to_meter[port_no]=port_no
+
+
+
 
         return 1
 
-    def add_meter_service(self, datapath_id, src_addr, dst_sddr, speed):
+    def add_meter_service(self, datapath_id, src_addr, dst_addr, speed):
+        print "ADDING METER FOR SERVICE"
+        if datapath_id not in self.datapathdict:
+            return -1
+        datapath= self.datapathdict[datapath_id]
+        meter_id= 50
+        flows = {}
 
-        #create meter with rate of <speed> and intall - NEED TO GIVE A METER ID HGIHGER THAN MAX PORTS 
+        if datapath_id in self.datapath_to_flows:
+            flows = self.datapath_to_flows[datapath_id]
+        else:
+            self.datapath_to_flows[datapath_id]=flows
+        #Check if meter id created for this switch
+        if datapath_id in self.datapathID_to_meter_ID:
+            meter_id = self.datapathID_to_meter_ID[datapath_id]
+        else:
+            self.datapathID_to_meter_ID[datapath_id]=meter_id
+
+        #Check if the src and dst has already had a meter created for it
+        if src_addr+dst_addr in flows:
+            #flow already exists!
+            #find out what that flow used for its meter_id
+            meter_id = flows[src_addr+dst_addr]
+        else:
+            flows[src_addr+dst_addr]=meter_id
+
+
+        #create meter with rate of <speed> and intall - NEED TO GIVE A METER ID HIGHER THAN MAX PORTS
+        bands=[]
+        #set starting bit rate of meter
+        dropband = parser.OFPMeterBandDrop(rate=speed, burst_size=0)
+        bands.append(dropband)
+        #Delete meter incase it already exists (other instructions pre installed will still work)
+        request = parser.OFPMeterMod(datapath=datapath,command=ofproto.OFPMC_DELETE,flags=ofproto.OFPMF_KBPS,meter_id=meter_id,bands=bands)
+        datapath.send_msg(request)
+        #Create meter
+        request = parser.OFPMeterMod(datapath=datapath,command=ofproto.OFPMC_ADD, flags=ofproto.OFPMF_KBPS,meter_id=meter_id,bands=bands)
+        datapath.send_msg(request)
+
         #create flow with <src> and <dst> - with a higher priority than normal switch behaviour -
         #action NORMAL && link to meter
+        match = parser.OFPMatch(ipv4_src=src_addr, ipv4_src=dst_addr)
+        actions = [parser.OFPActionOutput(ofp.OFPP_NORMAL)]
 
-        #delete if the exist already
+        add_flow(datapath=datapath, priority=100, match=match, actions, buffer_id=None, meter=meter_id, timeout=0):
+
+        meter_id = meter_id + 1
+
 
         return 1
 
@@ -163,6 +234,35 @@ class SimpleSwitch13(app_manager.RyuApp):
         else:
             out_port = ofproto.OFPP_FLOOD
 
+        #get port to meter for this switch (mainly to see if meter already exists)
+        port_to_meter= self.datapathID_to_meter[dpid]
+
+
+        #Create new meters
+        #Check for flood, dont want to add meter for flood
+        if out_port != ofproto.OFPP_FLOOD:
+                 print "NOT A FLOOD PACKET"
+             if out_port in port_to_meter:
+                     #if the meter already exists for THIS SWITCH set instruction to use
+                     print "Meter already exists for this port"
+             else:
+                 #This controller not added meter before, need to create one for this port
+                 print "NEW METER CREATED FOR :", out_port
+                 bands=[]
+                 #set starting bit rate of meter
+                 dropband = parser.OFPMeterBandDrop(rate=1000000, burst_size=0)
+                 bands.append(dropband)
+                 #Delete meter first, it might already exist
+                 request = parser.OFPMeterMod(datapath=datapath,command=ofproto.OFPMC_DELETE,flags=ofproto.OFPMF_KBPS,meter_id=out_port,bands=bands)
+                 datapath.send_msg(request)
+                 request = parser.OFPMeterMod(datapath=datapath,command=ofproto.OFPMC_ADD, flags=ofproto.OFPMF_KBPS,meter_id=out_port,bands=bands)
+                 datapath.send_msg(request)
+                 port_to_meter[out_port]=out_port
+
+
+
+
+        #Standard smart switch continues
         actions = [parser.OFPActionOutput(out_port)]
 
         # install a flow to avoid packet_in next time
