@@ -2,9 +2,10 @@
 
 <h2> Current set up </h2>
 
-<b><br>SW1 - </b>
-<br>
-<br>
+<b><br>SW1 - AccessSW2</b>
+<br>Software revision  : KA.15.15.0006
+<br>ROM Version        : KA.15.09 
+<br>Configured OpenFlow instance - ryu
 <b><br>SW2 - HP-3800-48G-PoEP-4XG</b>
 <br>Software revision  : KA.15.15.0006 
 <br>ROM Version        : KA.15.09   
