@@ -179,8 +179,12 @@ http_client.notify("<procedure>", arg1, arg2)
 <br>Params: `[<switch_id>, <port_no>, <speed B/s>]`
 
 <b> enforce_flow </b> - Notification - <b> Not implemented </b>
-<br>Enforces a bandwidth restricion on a specific flow. Any previous enforcements will be replaced.
-<br>Params :`[<switch_id>, <flow_id>]`
+<br>Enforces a bandwidth restricion on an existing flow. Any previous enforcements will be replaced.
+<br>Params:`[<switch_id>, <flow_id>]`
+
+<b> enfore_service </b>
+<br>Enforces a bandwith restricting on a service donated by the source and destination address pair.
+<br>Params: `[<switch_id>, <src_addr>, <dst_addr>, <speed B/s>]`
 
 <h2>CLI - In progress</h2>
 <b> report_throughput.py </b> - Only port based for now
