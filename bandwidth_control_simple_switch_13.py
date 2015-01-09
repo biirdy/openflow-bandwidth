@@ -71,6 +71,10 @@ class SimpleSwitch13(app_manager.RyuApp):
         #starts at 50, hp
         self.datapathID_to_meter_ID= {}
 
+
+	self.datapath_to_flows = {}
+
+
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
     def switch_features_handler(self, ev):
         datapath = ev.msg.datapath
@@ -93,6 +97,8 @@ class SimpleSwitch13(app_manager.RyuApp):
 
         #Add new switches for polling
         self.datapathdict[datapath.id]=datapath
+	#	self.add_meter_service(datapath.id, "10.1.1.1", "10.1.1.2", 200)
+
 
 
     #Add flow modified to allow meters
@@ -102,10 +108,10 @@ class SimpleSwitch13(app_manager.RyuApp):
 
         print "The meter is :",meter
         if meter != None:
-        print "Sending flow mod with meter instruction, meter :", meter
+            print "Sending flow mod with meter instruction, meter :", meter
             inst = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS,actions),parser.OFPInstructionMeter(meter)]
         else:
-        print "Not sending instruction"
+            print "Not sending instruction"
             inst = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS,actions)]
         if buffer_id:
             mod = parser.OFPFlowMod(datapath=datapath, buffer_id=buffer_id,
@@ -121,24 +127,40 @@ class SimpleSwitch13(app_manager.RyuApp):
         #Edit this
     def add_meter_port(self, datapath_id, port_no, speed):
         print "ADDING METER TO PORT"
-        #METER ID's WILL DIRECTLY RELATE TO PORT NUMBERS
+
+	datapath_id = int(datapath_id)
+	
+        if datapath_id not in self.datapathdict:
+		"dont have dick"
+		return -1
+        datapath= self.datapathdict[datapath_id]
+        
+
+        ofproto = datapath.ofproto
+        parser = datapath.ofproto_parser
+
+
+	#METER ID's WILL DIRECTLY RELATE TO PORT NUMBERS
         #change meter with meter_id <port_no>, on switch <datapath>, to have a rate of <speed>
-
-        port_to_meter= self.datapathID_to_meter[datapath_id]
-
+	print datapath_id
+	
+	if datapath_id in self.datapathID_to_meters:
+        	port_to_meter= self.datapathID_to_meters[datapath_id]
+	else:
+		print "not in"
         bands=[]
         #set starting bit rate of meter
-        dropband = parser.OFPMeterBandDrop(rate=speed, burst_size=0)
-        bands.append(dropband)
+        dropband = parser.OFPMeterBandDrop(rate=int(speed), burst_size=0)
+	bands.append(dropband)
         #Delete meter incase it already exists (other instructions pre installed will still work)
-        request = parser.OFPMeterMod(datapath=datapath,command=ofproto.OFPMC_DELETE,flags=ofproto.OFPMF_KBPS,meter_id=port_no,bands=bands)
+        request = parser.OFPMeterMod(datapath=datapath,command=ofproto.OFPMC_DELETE,flags=ofproto.OFPMF_KBPS,meter_id=int(port_no),bands=bands)
         datapath.send_msg(request)
         #Create meter
-        request = parser.OFPMeterMod(datapath=datapath,command=ofproto.OFPMC_ADD, flags=ofproto.OFPMF_KBPS,meter_id=port_no,bands=bands)
+        request = parser.OFPMeterMod(datapath=datapath,command=ofproto.OFPMC_ADD, flags=ofproto.OFPMF_KBPS,meter_id=int(port_no),bands=bands)
         datapath.send_msg(request)
-
+	print request
         #Prvent overwriting incase rule added before traffic seen
-        port_to_meter[port_no]=port_no
+        port_to_meter[int(port_no)]=int(port_no)
 
 
 
@@ -147,21 +169,32 @@ class SimpleSwitch13(app_manager.RyuApp):
 
     def add_meter_service(self, datapath_id, src_addr, dst_addr, speed):
         print "ADDING METER FOR SERVICE"
-        if datapath_id not in self.datapathdict:
+        datapath_id=int(datapath_id)
+	if datapath_id not in self.datapathdict:
             return -1
         datapath= self.datapathdict[datapath_id]
         meter_id= 50
         flows = {}
 
+	speed= int(speed)
+
+        ofproto = datapath.ofproto
+        parser = datapath.ofproto_parser
+	
+
         if datapath_id in self.datapath_to_flows:
             flows = self.datapath_to_flows[datapath_id]
         else:
             self.datapath_to_flows[datapath_id]=flows
-        #Check if meter id created for this switch
+       
+
+	 #Check if meter id created for this switch
         if datapath_id in self.datapathID_to_meter_ID:
             meter_id = self.datapathID_to_meter_ID[datapath_id]
         else:
             self.datapathID_to_meter_ID[datapath_id]=meter_id
+
+
 
         #Check if the src and dst has already had a meter created for it
         if src_addr+dst_addr in flows:
@@ -177,22 +210,26 @@ class SimpleSwitch13(app_manager.RyuApp):
         #set starting bit rate of meter
         dropband = parser.OFPMeterBandDrop(rate=speed, burst_size=0)
         bands.append(dropband)
+
         #Delete meter incase it already exists (other instructions pre installed will still work)
         request = parser.OFPMeterMod(datapath=datapath,command=ofproto.OFPMC_DELETE,flags=ofproto.OFPMF_KBPS,meter_id=meter_id,bands=bands)
         datapath.send_msg(request)
+
         #Create meter
         request = parser.OFPMeterMod(datapath=datapath,command=ofproto.OFPMC_ADD, flags=ofproto.OFPMF_KBPS,meter_id=meter_id,bands=bands)
         datapath.send_msg(request)
 
+
         #create flow with <src> and <dst> - with a higher priority than normal switch behaviour -
         #action NORMAL && link to meter
-        match = parser.OFPMatch(ipv4_src=src_addr, ipv4_src=dst_addr)
-        actions = [parser.OFPActionOutput(ofp.OFPP_NORMAL)]
+        match = parser.OFPMatch(ipv4_src=src_addr, ipv4_dst=dst_addr)
+        actions = [parser.OFPActionOutput(ofproto.OFPP_NORMAL)]
 
-        add_flow(datapath=datapath, priority=100, match=match, actions, buffer_id=None, meter=meter_id, timeout=0):
+
+        self.add_flow(datapath, 100, match, actions, buffer_id=None, meter=meter_id, timeout=0)
+
 
         meter_id = meter_id + 1
-
 
         return 1
 
@@ -222,6 +259,7 @@ class SimpleSwitch13(app_manager.RyuApp):
         src = eth.src
 
         dpid = datapath.id
+	print('DPID', dpid)
         self.mac_to_port.setdefault(dpid, {})
 
         #self.logger.info("packet in %s %s %s %s", dpid, src, dst, in_port)
@@ -241,7 +279,7 @@ class SimpleSwitch13(app_manager.RyuApp):
         #Create new meters
         #Check for flood, dont want to add meter for flood
         if out_port != ofproto.OFPP_FLOOD:
-                 print "NOT A FLOOD PACKET"
+             print "NOT A FLOOD PACKET"
              if out_port in port_to_meter:
                      #if the meter already exists for THIS SWITCH set instruction to use
                      print "Meter already exists for this port"

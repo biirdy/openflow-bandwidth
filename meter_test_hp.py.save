@@ -16,7 +16,6 @@ class SimpleSwitch13(app_manager.RyuApp):
         self.mac_to_port = {}
 	self.port_to_meter = {}
 
-    #Called when connected to new switch
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
     def switch_features_handler(self, ev):
         datapath = ev.msg.datapath
@@ -31,8 +30,22 @@ class SimpleSwitch13(app_manager.RyuApp):
         self.add_flow(datapath, 1, match, actions, meter=None, timeout=0)
 
         print datapath.id
+        #Add flow that installs meter
+#        bands = []
+#        bands.append(dropband)
+#	datapath.send_msg(request)
+#        request = parser.OFPMeterMod(datapath=datapath,command=ofproto.OFPMC_DELETE,flags=ofproto.OFPMF_KBPS,meter_id=10,bands=bands)
+
+#	print "Deleting meter 10"
+
+ #       request = parser.OFPMeterMod(datapath=datapath,command=ofproto.OFPMC_ADD, flags=ofproto.OFPMF_KBPS,meter_id=10,bands=bands)
+
+
+  #      print("Creating new meter")
+
+   #     datapath.send_msg(request);
     
-        #requesting meter features
+        #requesitng meter features
 	self.send_meter_features_stats_request(datapath)
 
 
@@ -48,17 +61,21 @@ class SimpleSwitch13(app_manager.RyuApp):
 	    print "Sending flow mod with meter instruction, meter :", meter
             inst = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS,actions),parser.OFPInstructionMeter(meter)]
         else:
-	    print "Not sending instruction"
             inst = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS,actions)]
         if buffer_id:
-            mod = parser.OFPFlowMod(datapath=datapath, buffer_id=buffer_id,priority=priority, match=match,instructions=inst, hard_timeout=timeout, idle_timeout=timeout, table_id=100)
+            mod = parser.OFPFlowMod(datapath=datapath, buffer_id=buffer_id,
+                                    priority=priority, match=match,
+                                    instructions=inst, hard_timeout=timeout, idle_timeout=timeout, table_id=100)
         else:
-            mod = parser.OFPFlowMod(datapath=datapath, priority=priority,match=match, instructions=inst, hard_timeout=timeout, idle_timeout=timeout, table_id=100)
+            mod = parser.OFPFlowMod(datapath=datapath, priority=priority,
+                                    match=match, instructions=inst, hard_timeout=timeout, idle_timeout=timeout, table_id=100)
         datapath.send_msg(mod)
 
     #gets the meter stats from switch periodically
+
     def printit(self,dd):
         threading.Timer(5.0, self.printit,[dd]).start()
+        #print("requesting meter stats")
         self.send_meter_stats_request(dd)
 
     
@@ -82,8 +99,14 @@ class SimpleSwitch13(app_manager.RyuApp):
         eth = None
         eth = pkt.get_protocols(ethernet.ethernet)[0]
 
+        #if eth = None
+        #    //its our packet
+        #    //do calculations
+
+
         dst = eth.dst
         src = eth.src
+
 
         dpid = datapath.id
         self.mac_to_port.setdefault(dpid, {})
@@ -100,10 +123,25 @@ class SimpleSwitch13(app_manager.RyuApp):
 
         actions = [parser.OFPActionOutput(out_port)]
 
+        # install a flow to avoid packet_in next time
+        if out_port != ofproto.OFPP_FLOOD:
+            match = parser.OFPMatch(in_port=in_port, eth_dst=dst)
+            # verify if we have a valid buffer_id, if yes avoid to send both
+            # flow_mod & packet_out
+            if msg.buffer_id != ofproto.OFP_NO_BUFFER:
+                self.add_flow(datapath, 2, match, actions, msg.buffer_id, meter=out_port, timeout=60)
+                return
+            el
+                self.add_flow(datapath, 2, match, actions, meter=None, timeout=60)
+        data = None
+        if msg.buffer_id == ofproto.OFP_NO_BUFFER:
+            data = msg.data
+
+        out = parser.OFPPacketOut(datapath=datapath, buffer_id=msg.buffer_id,
+                                  in_port=in_port, actions=actions, data=data)
+        datapath.send_msg(out)
 
 
-
-	#Create new meters
 	#Check for flood, dont want to add meter for flood
 	if out_port != ofproto.OFPP_FLOOD:	
              print "NOT A FLOOD PACKET"
@@ -111,41 +149,17 @@ class SimpleSwitch13(app_manager.RyuApp):
                  #if the meter already exists set instruction to use	
                  print "Meter already exists for this port"
 	     else:
-	         #This controller not added meter before, need to create one for this port
+	         #meter does not exist, need to create one for this port
 	         print "NEW METER CREATED FOR :", out_port 
 	         bands=[]
-		 #set starting bit rate of meter
-                 dropband = parser.OFPMeterBandDrop(rate=10000, burst_size=0)
+                 dropband = parser.OFPMeterBandDrop(rate=100, burst_size=0)
                  bands.append(dropband)
-	         #Delete meter first, it might already exist
+	         #Delete meter first incase it already exists
 	         request = parser.OFPMeterMod(datapath=datapath,command=ofproto.OFPMC_DELETE,flags=ofproto.OFPMF_KBPS,meter_id=out_port,bands=bands)
 	         datapath.send_msg(request)
                  request = parser.OFPMeterMod(datapath=datapath,command=ofproto.OFPMC_ADD, flags=ofproto.OFPMF_KBPS,meter_id=out_port,bands=bands)
 	         datapath.send_msg(request)	    
 	         self.port_to_meter[out_port]=out_port
-
-
-
-
-        # install a flow to avoid packet_in next time
-        if out_port != ofproto.OFPP_FLOOD:
-            match = parser.OFPMatch(in_port=in_port, eth_dst=dst)
-            # verify if we have a valid buffer_id, if yes avoid to send both
-            # flow_mod & packet_out
-            if msg.buffer_id != ofproto.OFP_NO_BUFFER:
-		print "Valid buffer"
-                self.add_flow(datapath, 2, match, actions, msg.buffer_id, meter=out_port, timeout=60)
-                return
-            else:
-                self.add_flow(datapath, 2, match, actions, meter=out_port, timeout=60)
-        
-	data = None
-        if msg.buffer_id == ofproto.OFP_NO_BUFFER:
-            data = msg.data
-
-        out = parser.OFPPacketOut(datapath=datapath, buffer_id=msg.buffer_id,
-                                  in_port=in_port, actions=actions, data=data)
-        datapath.send_msg(out)
 
 
 

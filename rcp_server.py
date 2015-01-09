@@ -10,11 +10,11 @@ class rcp_server:
 	def terminate(self):
 		self._running = False
 
-	def run(self, num, add_meter_port, add_meter_service):
+	def run(self, num, max_throughput, add_meter_port, add_meter_service):
 		http_server = pyjsonrpc.ThreadingHttpServer(server_address = ('localhost', 4000),RequestHandlerClass = RequestHandler)
 		http_server.add_meter_port = add_meter_port
 		http_server.add_meter_service = add_meter_service
-		http_server.meter_mod = meter_mod
+		http_server.max_throughput = max_throughput
 		http_server.serve_forever()
 
 class RequestHandler(pyjsonrpc.HttpRequestHandler):
@@ -28,7 +28,7 @@ class RequestHandler(pyjsonrpc.HttpRequestHandler):
 
 	@pyjsonrpc.rpcmethod
 	def report_all_ports(self):
-		return json.dumps(self.server.max_throughput)
+		return self.server.max_throughput
 
 	@pyjsonrpc.rpcmethod
 	def reset_port(self, switch, port):

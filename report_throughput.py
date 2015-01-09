@@ -20,7 +20,7 @@ def _decode_dict(data):
         if isinstance(key, unicode):
             key = int(key)
         if isinstance(value, unicode):
-            value = value.encode('utf-8')
+            value = value.encode('ascii')
         elif isinstance(value, dict):
             value = _decode_dict(value)
         rv[key] = value
@@ -56,7 +56,7 @@ def main(argv):
 			sys.exit(2)
 
 	if al == True:
-		print json.loads(http_client.call("report_all_ports"), object_hook=_decode_dict)
+		print http_client.call("report_all_ports")
 	elif switch is not None and port is not None:
 		print json.loads(http_client.call("report_port", port, switch), object_hook=decode_dict)
 	elif switch is not None:
