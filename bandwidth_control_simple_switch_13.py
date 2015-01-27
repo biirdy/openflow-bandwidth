@@ -9,7 +9,6 @@ from ryu.ofproto import ofproto_v1_3
 from ryu.lib.packet import packet
 from ryu.lib.packet import ethernet
 
-from gui_topology import *
 from ryu.app.wsgi import ControllerBase, WSGIApplication, route
 from ryu.base import app_manager
 
