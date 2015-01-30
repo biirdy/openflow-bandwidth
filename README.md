@@ -197,9 +197,13 @@ Show specifc port on a switch
 
 `% python report_throughput.py -s <switch_id> -p <port_no>`
 
-<b> enforce_throughput.py </b> - Only port based outbound for now
+<b> enforce_throughput_port.py </b>
 
-`% python enforce_throughput.py <switch_id> <port_no> <speed B/s>`
+`% python enforce_throughput_port.py <switch_id> <port_no> <speed B/s>`
+
+<b> enforce_throughput_service.py </b>
+
+`% python enforce_throughput_service.py <switch_id> <src_ip> <dst_ip> <speed B/s>`
 
 
 
