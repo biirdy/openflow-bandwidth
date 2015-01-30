@@ -257,7 +257,11 @@ class SimpleSwitch13(app_manager.RyuApp):
             out_port = ofproto.OFPP_FLOOD
 
         #get port to meter for this switch (mainly to see if meter already exists)
-        port_to_meter= self.datapathID_to_meter[dpid]
+        #print self.datapathID_to_meters
+	#check if switch already seen
+	if dpid not in self.datapathID_to_meters:
+		self.datapathID_to_meters[dpid]={}
+	port_to_meter= self.datapathID_to_meters[dpid]
 
 
         #Create new meters
