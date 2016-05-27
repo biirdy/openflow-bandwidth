@@ -11,7 +11,7 @@ The controller runs a JSON-RPC server for interfacing. Procedures shown below.
 
 <b> Open vSwitch </b>
 <br>Bandwidth reporting - Confirmed
-<br>Bandwidht enforcing - Failed
+<br>Bandwidth enforcing - Failed (Incomplete support for enforcing meters on OvS)
 
 ## Quick start
 Install Ryu - simple pip installation has requirements
@@ -35,7 +35,7 @@ By default the RPC server is running on `http://localhost:4000/jsonrpc`
 
 ## JSON RPC interface
 The JSON-RPC server is a HTTP server.
-The following examples would be used to develop a python application using the python-jspnrpc library (https://pypi.python.org/pypi/python-jsonrpc), but procedures can be called using any JSON-RPC method. (I think)
+The following examples would be used to develop a python application using the python-jspnrpc library (https://pypi.python.org/pypi/python-jsonrpc), but procedures can be called using any JSON-RPC method.
 
 Install 
 
